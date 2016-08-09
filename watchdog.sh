@@ -7,18 +7,18 @@ error_statement="Error running loop"
 
 while true; do
     for name in $names; do
-        echo -n "checking $name: "
-        logs=$(docker logs $name 2>&1 1>/dev/null)
-        if [ -n "$logs" ]; then
+        echo -n "[$(date +%T)] checking $name: "
+        inspect=$(docker inspect --format="{{ .State.Running }}" $name 2> /dev/null)
+        if [ -z "$inspect" ]; then
             echo "no such container"
             continue
         fi
-        time_error=$(docker logs $name | grep "$error_statement" | tail -n $num | grep -Eo "[0-9]{2}:[0-9]{2}:[0-9]{2}" | head -n 1)
+        time_error=$(docker logs $name 2> /dev/null | grep "$error_statement" | tail -n $num | grep -Eo "[0-9]{2}:[0-9]{2}:[0-9]{2}" | head -n 1)
         if [ -z "$time_error" ]; then
             echo "ok"
             continue
         fi
-        lines_error=$(docker logs $name | grep "$error_statement"| tail -n $num | wc -l)
+        lines_error=$(docker logs $name 2> /dev/null | grep "$error_statement" | tail -n $num | wc -l)
         if [ "$lines_error" -lt "5" ]; then
             echo "ok"
             continue
