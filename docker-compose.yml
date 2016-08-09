@@ -1,0 +1,11 @@
+watchdog:
+    restart: always
+    build: .
+    privileged: true
+    environment:
+        - BOT_CONTAINER_NAMES=testbot
+    volumes:
+        - /var/run/docker.sock:/var/run/docker.sock
+testbot:
+    container_name: testbot
+    build: testbot/
